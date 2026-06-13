@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import customer_service, market_analysis
+from app.routers import customer_service, market_analysis, copilot 
 
 app = FastAPI(
     title="SalesIQ Copilot API",
@@ -20,6 +20,7 @@ app.add_middleware(
 # Inclui os roteadores de módulos
 app.include_router(customer_service.router)
 app.include_router(market_analysis.router)
+app.include_router(copilot.router)
 
 @app.get("/")
 def read_root():

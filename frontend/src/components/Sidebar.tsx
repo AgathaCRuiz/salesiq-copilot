@@ -8,6 +8,7 @@ import {
   MessageSquare, 
   TrendingUp, 
   Sparkles, 
+  Bot,          // ✅ adiciona
   ChevronLeft, 
   ChevronRight 
 } from 'lucide-react';
@@ -23,6 +24,12 @@ export default function Sidebar() {
       icon: LayoutDashboard,
       description: 'Visão geral do sistema'
     },
+    {
+    name: 'Copiloto',  
+    href: '/copilot',
+    icon: Bot,
+    description: 'Atendimento com dados reais'
+  },
     {
       name: 'Simulador',
       href: '/simulator',

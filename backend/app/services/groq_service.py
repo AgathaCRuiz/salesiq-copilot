@@ -1,12 +1,10 @@
 import json
-import os
 from typing import Dict, Any
 from groq import Groq
 from app.core.config import settings
 
 class GroqService:
     def __init__(self):
-        # Inicializa o cliente apenas se a chave estiver configurada
         self.api_key = settings.GROQ_API_KEY
         self._client = None
 
@@ -22,18 +20,12 @@ class GroqService:
         return self._client
 
     def _load_knowledge_file(self, filename: str) -> str:
-        """
-        Carrega o conteúdo de um arquivo da base de conhecimento.
-        Se não existir, retorna um texto padrão para evitar falhas.
-        """
         filepath = settings.KNOWLEDGE_DIR / filename
         if filepath.exists():
             try:
                 return filepath.read_text(encoding="utf-8")
             except Exception:
                 pass
-        
-        # Fallbacks embutidos caso os arquivos de conhecimento sumam
         if filename == "sales_context.md":
             return (
                 "Estrutura da Resposta: 1. Empatia/Saudação, 2. Argumentos de Vendas, 3. CTA Claro.\n"
@@ -49,12 +41,7 @@ class GroqService:
     async def generate_reply_suggestion(
         self, customer_message: str, niche: str, tone: str
     ) -> Dict[str, Any]:
-        """
-        Gera uma sugestão de resposta inteligente para o atendimento ao cliente,
-        usando contexto de vendas e tom selecionado.
-        """
         sales_context = self._load_knowledge_file("sales_context.md")
-
         system_prompt = f"""
 Você é um especialista em vendas de e-commerce e atendimento ao cliente. 
 Sua tarefa é analisar a mensagem de um cliente e sugerir a melhor resposta de vendas baseada no nicho e tom escolhidos.
@@ -67,15 +54,13 @@ Diretrizes de Atendimento (da base de conhecimento):
 
 Você DEVE responder obrigatoriamente em formato JSON com a seguinte estrutura:
 {{
-  "suggested_response": "A resposta exata sugerida para o vendedor copiar e colar (em português brasileiro). Deve incluir saudações adequadas, argumentos de valor específicos para o nicho, resolver objeções e terminar com um CTA atraente.",
-  "tone_analysis": "Uma explicação curta de por que esse tom foi adequado e como ele foi implementado nesta resposta.",
+  "suggested_response": "A resposta exata sugerida para o vendedor copiar e colar (em português brasileiro).",
+  "tone_analysis": "Uma explicação curta de por que esse tom foi adequado.",
   "objection_handling": "Como você contornou as objeções implícitas na dúvida do cliente.",
   "sales_arguments": ["Argumento 1", "Argumento 2", "Argumento 3"]
 }}
         """
-
         user_prompt = f"Mensagem enviada pelo cliente: \"{customer_message}\""
-
         try:
             completion = self.client.chat.completions.create(
                 messages=[
@@ -87,59 +72,136 @@ Você DEVE responder obrigatoriamente em formato JSON com a seguinte estrutura:
                 temperature=0.7,
                 max_tokens=1000
             )
-            response_text = completion.choices[0].message.content
-            return json.loads(response_text)
+            return json.loads(completion.choices[0].message.content)
         except Exception as e:
             raise RuntimeError(f"Erro ao chamar a API da Groq: {str(e)}")
 
     async def analyze_market_metrics(self, metrics: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Interpreta métricas brutas da API do Mercado Livre e gera um relatório
-        estruturado de Lead Intelligence usando as heurísticas de análise de mercado.
-        """
         metrics_rules = self._load_knowledge_file("market_metrics_rules.md")
+        brands_text = ", ".join(metrics.get("top_brands", [])) or "Não identificadas"
+        attributes_text = ""
+        for attr in metrics.get("key_attributes", []):
+            values = ", ".join(attr.get("values", []))
+            attributes_text += f"- {attr['name']}: {values}\n"
+        related = metrics.get("related_categories", [])
+        related_text = ", ".join([c["name"] for c in related]) or "Nenhuma"
 
         system_prompt = f"""
-Você é um analista de inteligência de mercado sênior focado em e-commerce.
-Sua tarefa é interpretar as métricas agregadas da API pública do Mercado Livre e gerar um relatório estratégico para um vendedor que deseja entrar nesse nicho.
+Você é um analista de inteligência de mercado sênior focado em e-commerce brasileiro.
+Dados coletados no Mercado Livre para o nicho "{metrics['query']}":
+- Categoria principal: {metrics.get('category_name', 'N/A')}
+- Hierarquia: {metrics.get('category_path', 'N/A')}
+- Total de itens ativos: {metrics.get('total_items_in_market', 0):,}
+- Categorias relacionadas: {related_text}
+- Principais marcas: {brands_text}
+- Atributos técnicos:
+{attributes_text}
 
-Métricas coletadas no Mercado Livre para o nicho "{metrics['query']}":
-- Preço Médio: R$ {metrics['avg_price']}
-- Preço Mínimo: R$ {metrics['min_price']}
-- Preço Máximo: R$ {metrics['max_price']}
-- Total de anúncios ativos estimados no ML: {metrics['total_listings']}
-- Amostra analisada na primeira página: {metrics['sample_size']} anúncios
-- Quantidade de Sellers concorrendo na amostra: {metrics['unique_sellers']}
-- Taxa de anúncios com Frete Grátis na amostra: {int(metrics['free_shipping_ratio'] * 100)}%
+Regras: {metrics_rules}
 
-Regras e diretrizes de interpretação de mercado (da base de conhecimento):
-{metrics_rules}
-
-Você DEVE responder obrigatoriamente em formato JSON com a seguinte estrutura:
+Responda APENAS em JSON:
 {{
   "competition_level": "Baixa" ou "Média" ou "Alta" ou "Saturado",
-  "competition_analysis": "Análise detalhada sobre os vendedores concorrentes, concorrência direta e concentração de anúncios.",
-  "ideal_price_range": "Uma faixa de preço específica recomendada para entrada (ex: R$ 120,00 - R$ 145,00).",
-  "price_strategy": "Justificativa da faixa de preço escolhida baseada nos preços mínimo, máximo e médio da concorrência.",
-  "opportunities": ["Oportunidade 1 (ex: kits/combos)", "Oportunidade 2 (ex: explorar frete grátis)", "Oportunidade 3"],
-  "commercial_approach": "Sugestão prática de abordagem comercial (ex: como redigir o título do anúncio, fotos, diferenciais que devem ser destacados no anúncio para se destacar)."
+  "competition_analysis": "Análise sobre volume, marcas e concentração.",
+  "ideal_price_range": "Faixa recomendada (ex: R$ 150,00 - R$ 300,00).",
+  "price_strategy": "Justificativa da faixa.",
+  "opportunities": ["Oportunidade 1", "Oportunidade 2", "Oportunidade 3"],
+  "commercial_approach": "Sugestão prática de título, diferenciais e atributos."
 }}
         """
-
         try:
             completion = self.client.chat.completions.create(
                 messages=[
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": f"Gere a análise para o nicho de produto: '{metrics['query']}'"}
+                    {"role": "user", "content": f"Gere a análise para: '{metrics['query']}'"}
                 ],
                 model="llama-3.3-70b-versatile",
                 response_format={"type": "json_object"},
                 temperature=0.5,
                 max_tokens=1500
             )
-            response_text = completion.choices[0].message.content
-            return json.loads(response_text)
+            return json.loads(completion.choices[0].message.content)
         except Exception as e:
-            raise RuntimeError(f"Erro ao gerar a inteligência de mercado na Groq: {str(e)}")
+            raise RuntimeError(f"Erro ao gerar inteligência de mercado: {str(e)}")
 
-groq_service = GroqService()
+    async def summarize_product_context(self, context: Dict[str, Any]) -> str:  # ✅ dentro da classe
+        brands_text = ", ".join(context.get("top_brands", [])) or "Não identificadas"
+        attributes_text = ""
+        for attr in context.get("key_attributes", []):
+            values = ", ".join(attr.get("values", []))
+            attributes_text += f"- {attr['name']}: {values}\n"
+
+        prompt = f"""
+Com base nos dados reais do Mercado Livre, gere um resumo conciso (3-4 frases)
+sobre o produto abaixo para orientar um vendedor no atendimento ao cliente.
+
+Produto: {context.get('query')}
+Categoria: {context.get('category_name')} ({context.get('category_path')})
+Total de itens no mercado: {context.get('total_items_in_market', 0):,}
+Principais marcas: {brands_text}
+Atributos técnicos:
+{attributes_text}
+
+Seja direto e útil. Responda apenas o resumo, sem títulos ou formatação extra.
+"""
+        try:
+            completion = self.client.chat.completions.create(
+                messages=[{"role": "user", "content": prompt}],
+                model="llama-3.3-70b-versatile",
+                temperature=0.4,
+                max_tokens=300
+            )
+            return completion.choices[0].message.content.strip()
+        except Exception as e:
+            raise RuntimeError(f"Erro ao gerar resumo: {str(e)}")
+
+    async def answer_with_context(  # ✅ dentro da classe
+        self, question: str, context: Dict[str, Any], tone: str
+    ) -> Dict[str, Any]:
+        brands_text = ", ".join(context.get("top_brands", [])) or "Não identificadas"
+        attributes_text = ""
+        for attr in context.get("key_attributes", []):
+            values = ", ".join(attr.get("values", []))
+            attributes_text += f"- {attr['name']}: {values}\n"
+
+        system_prompt = f"""
+Você é um assistente de vendas especializado no produto: {context.get('query')}.
+
+DADOS REAIS DO PRODUTO (fonte: Mercado Livre):
+- Categoria: {context.get('category_name')}
+- Hierarquia: {context.get('category_path')}
+- Volume de mercado: {context.get('total_items_in_market', 0):,} itens ativos
+- Principais marcas: {brands_text}
+- Atributos técnicos reais:
+{attributes_text}
+
+REGRAS OBRIGATÓRIAS:
+1. Responda APENAS com base nos dados acima
+2. Se não puder responder com esses dados, diga claramente que não tem essa informação
+3. Nunca invente especificações, preços ou características
+4. Tom da resposta: {tone}
+
+Responda em JSON:
+{{
+  "answer": "Resposta para o cliente em português brasileiro",
+  "sources": ["Atributo 1 usado", "Atributo 2 usado"],
+  "confidence": "Alta" ou "Média" ou "Baixa"
+}}
+"""
+        try:
+            completion = self.client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": question}
+                ],
+                model="llama-3.3-70b-versatile",
+                response_format={"type": "json_object"},
+                temperature=0.3,
+                max_tokens=800
+            )
+            return json.loads(completion.choices[0].message.content)
+        except Exception as e:
+            raise RuntimeError(f"Erro ao responder com contexto: {str(e)}")
+
+
+groq_service = GroqService()  # ✅ sempre por último

@@ -6,45 +6,66 @@ from app.core.config import settings
 class MLService:
     def __init__(self):
         self.base_url = settings.ML_API_BASE_URL
-        self.headers = {"Authorization": f"Bearer {settings.ML_ACCESS_TOKEN}"}
+        self._access_token = settings.ML_ACCESS_TOKEN
 
-    async def _get(self, url: str, params: Dict = None) -> Any:
-        """Helper para GET com tratamento de erro centralizado."""
+    @property
+    def headers(self):
+        return {"Authorization": f"Bearer {self._access_token}"}
+
+    async def _refresh_token(self) -> None:
+        """Renova o token automaticamente via client_credentials."""
+        url = "https://api.mercadolibre.com/oauth/token"
+        body = (
+            f"grant_type=client_credentials"
+            f"&client_id={settings.ML_APP_ID}"
+            f"&client_secret={settings.ML_SECRET_KEY}"
+        )
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.post(
+                url,
+                content=body,
+                headers={"Content-Type": "application/x-www-form-urlencoded"}
+            )
+            if response.status_code == 200:
+                data = response.json()
+                self._access_token = data.get("access_token", self._access_token)
+                print(f"[MLService] Token renovado automaticamente.")
+            else:
+                print(f"[MLService] Falha ao renovar token: {response.status_code}")
+
+    async def _get(self, url: str, params: Dict = None, retry: bool = True) -> Any:
+        """GET com renovação automática de token em caso de 401."""
         async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.get(url, params=params, headers=self.headers)
+
+            if response.status_code == 401 and retry:
+                print("[MLService] Token expirado, renovando...")
+                await self._refresh_token()
+                return await self._get(url, params=params, retry=False)
+
             try:
-                response = await client.get(url, params=params, headers=self.headers)
                 response.raise_for_status()
                 return response.json()
             except httpx.HTTPError as exc:
                 raise RuntimeError(f"Erro ao consultar ML API: {str(exc)}")
 
     async def discover_categories(self, query: str) -> List[Dict[str, Any]]:
-        """
-        Passo 1: Descobre categorias relacionadas à query via domain_discovery.
-        Retorna até 5 categorias com id e nome.
-        """
         url = f"{self.base_url}/sites/MLB/domain_discovery/search"
         data = await self._get(url, params={"q": query, "limit": 5})
-
-        categories = []
-        for item in data:
-            categories.append({
+        return [
+            {
                 "category_id": item.get("category_id"),
                 "category_name": item.get("category_name"),
                 "domain_id": item.get("domain_id"),
                 "domain_name": item.get("domain_name"),
-            })
-        return categories
+            }
+            for item in data
+        ]
 
     async def get_category_info(self, category_id: str) -> Dict[str, Any]:
-        """
-        Passo 2: Busca informações da categoria — volume total de itens e hierarquia.
-        """
         url = f"{self.base_url}/categories/{category_id}"
         data = await self._get(url)
-
         path = [p.get("name") for p in data.get("path_from_root", [])]
-
         return {
             "category_id": category_id,
             "category_name": data.get("name"),
@@ -53,9 +74,6 @@ class MLService:
         }
 
     async def get_category_attributes(self, category_id: str) -> Dict[str, Any]:
-        """
-        Passo 3: Extrai atributos técnicos e marcas disponíveis na categoria.
-        """
         url = f"{self.base_url}/categories/{category_id}/attributes"
         data = await self._get(url)
 
@@ -66,14 +84,12 @@ class MLService:
             attr_id = attr.get("id", "")
             attr_name = attr.get("name", "")
             values = attr.get("values", []) or []
+            tags = attr.get("tags") or {}
+            is_hidden = tags.get("hidden", False) or tags.get("read_only", False)
 
-            # Extrai marcas
             if attr_id == "BRAND" and values:
                 brands = [v.get("name") for v in values[:10] if v.get("name")]
 
-            # Coleta atributos relevantes (não ocultos, com valores definidos)
-            tags = attr.get("tags") or {}
-            is_hidden = tags.get("hidden", False) or tags.get("read_only", False)
             if not is_hidden and values and attr_id not in ("BRAND", "GTIN", "MPN"):
                 key_attributes.append({
                     "name": attr_name,
@@ -82,24 +98,17 @@ class MLService:
 
         return {
             "brands": brands,
-            "key_attributes": key_attributes[:10],  # top 10 atributos
+            "key_attributes": key_attributes[:10],
             "total_attributes": len(data),
         }
 
     async def search_market_data(self, query: str) -> Dict[str, Any]:
-        """
-        Método principal: orquestra os 3 passos e retorna análise consolidada.
-        """
         print(f"1. Descobrindo categorias para: '{query}'")
         categories = await self.discover_categories(query)
 
         if not categories:
-            return {
-                "query": query,
-                "error": "Nenhuma categoria encontrada para essa busca."
-            }
+            return {"query": query, "error": "Nenhuma categoria encontrada."}
 
-        # Usa a primeira categoria (mais relevante)
         primary = categories[0]
         category_id = primary["category_id"]
 
@@ -111,17 +120,14 @@ class MLService:
 
         return {
             "query": query,
-            # Dados de mercado
             "category_id": category_id,
             "category_name": category_info["category_name"],
             "category_path": category_info["path"],
             "total_items_in_market": category_info["total_items"],
-            # Categorias relacionadas
             "related_categories": [
                 {"id": c["category_id"], "name": c["category_name"]}
                 for c in categories[1:]
             ],
-            # Marcas e atributos
             "top_brands": attributes["brands"],
             "key_attributes": attributes["key_attributes"],
             "total_attributes": attributes["total_attributes"],

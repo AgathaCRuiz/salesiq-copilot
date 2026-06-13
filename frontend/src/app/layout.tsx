@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+// Suppress TS error about missing type declarations for CSS module side-effect import
+// @ts-ignore
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 
