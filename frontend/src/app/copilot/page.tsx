@@ -155,7 +155,7 @@ export default function CopilotPage() {
                 <button
                   onClick={() => handleLoadContext(query)}
                   disabled={isLoadingContext || !query.trim()}
-                  className="px-5 py-3 bg-gradient-to-r from-indigo-600 to-violet-500 hover:from-indigo-500 hover:to-violet-400 text-white font-semibold rounded-xl text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-500/20"
+                  className="px-5 py-3 bg-linear-to-r from-indigo-600 to-violet-500 hover:from-indigo-500 hover:to-violet-400 text-white font-semibold rounded-xl text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-500/20"
                 >
                   {isLoadingContext ? 'Carregando...' : 'Carregar'}
                 </button>
@@ -179,7 +179,7 @@ export default function CopilotPage() {
             {/* Loading */}
             {isLoadingContext && (
               <div className="flex items-center gap-3 text-slate-400 text-sm p-4 bg-slate-950/40 rounded-xl">
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-indigo-400 border-t-transparent flex-shrink-0" />
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-indigo-400 border-t-transparent shrink-0" />
                 Buscando dados reais no Mercado Livre...
               </div>
             )}
@@ -187,7 +187,7 @@ export default function CopilotPage() {
             {/* Erro */}
             {contextError && (
               <div className="flex items-start gap-3 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-xs">
-                <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
                 <div>
                   <p className="font-bold">Falha ao carregar produto</p>
                   <p className="mt-0.5">{contextError}</p>
@@ -228,7 +228,7 @@ export default function CopilotPage() {
               </div>
 
               <div className="flex items-center gap-2 p-2.5 bg-slate-950/40 rounded-lg">
-                <Layers className="h-4 w-4 text-violet-400 flex-shrink-0" />
+                <Layers className="h-4 w-4 text-violet-400 shrink-0" />
                 <div>
                   <p className="text-[10px] text-slate-500 uppercase tracking-wider">Itens no mercado</p>
                   <p className="text-sm font-bold text-slate-100">
@@ -351,7 +351,7 @@ export default function CopilotPage() {
                 {/* Erro do chat */}
                 {chatError && (
                   <div className="flex items-start gap-2 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-xs">
-                    <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                    <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                     {chatError}
                   </div>
                 )}

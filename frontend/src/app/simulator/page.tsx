@@ -157,7 +157,7 @@ export default function SimulatorPage() {
                       <p className="text-xs font-bold">{t.label}</p>
                       <p className="text-[10px] text-slate-500 mt-0.5">{t.description}</p>
                     </div>
-                    {tone === t.value && <CheckCircle2 className="h-4 w-4 text-indigo-400 flex-shrink-0" />}
+                    {tone === t.value && <CheckCircle2 className="h-4 w-4 text-indigo-400 shrink-0" />}
                   </button>
                 ))}
               </div>
@@ -167,7 +167,7 @@ export default function SimulatorPage() {
             <button
               type="submit"
               disabled={isLoading || !customerMessage.trim() || !niche.trim()}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-indigo-600 to-violet-500 hover:from-indigo-500 hover:to-violet-400 text-white font-semibold rounded-xl text-sm transition-all duration-200 shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:shadow-indigo-500/35"
+              className="w-full flex items-center justify-center gap-2 py-3 bg-linear-to-r from-indigo-600 to-violet-500 hover:from-indigo-500 hover:to-violet-400 text-white font-semibold rounded-xl text-sm transition-all duration-200 shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:shadow-indigo-500/35"
             >
               {isLoading ? (
                 <>
@@ -186,7 +186,7 @@ export default function SimulatorPage() {
           {/* Error display */}
           {error && (
             <div className="flex items-start gap-3 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-400 text-xs animate-fade-in">
-              <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold">Ocorreu um erro</p>
                 <p className="mt-0.5">{error}</p>
@@ -201,7 +201,7 @@ export default function SimulatorPage() {
             <div className="space-y-6 animate-fade-in">
               
               {/* Suggested Reply Card */}
-              <div className="bg-gradient-to-tr from-indigo-900/15 via-slate-900/40 to-slate-900/40 border border-slate-800/80 rounded-2xl p-6 relative overflow-hidden backdrop-blur-sm">
+              <div className="bg-linear-to-tr from-indigo-900/15 via-slate-900/40 to-slate-900/40 border border-slate-800/80 rounded-2xl p-6 relative overflow-hidden backdrop-blur-sm">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none" />
                 
                 <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
@@ -266,7 +266,7 @@ export default function SimulatorPage() {
                 <ul className="space-y-2.5">
                   {result.sales_arguments.map((arg, idx) => (
                     <li key={idx} className="flex items-start gap-2.5 text-slate-300 text-xs leading-relaxed">
-                      <span className="h-5 w-5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold flex-shrink-0 text-[10px]">
+                      <span className="h-5 w-5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold shrink-0 text-[10px]">
                         {idx + 1}
                       </span>
                       <span className="pt-0.5">{arg}</span>
@@ -277,7 +277,7 @@ export default function SimulatorPage() {
 
             </div>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center p-8 bg-slate-900/10 border border-slate-800/40 border-dashed rounded-3xl min-h-[350px] text-center text-slate-500">
+            <div className="flex-1 flex flex-col items-center justify-center p-8 bg-slate-900/10 border border-slate-800/40 border-dashed rounded-3xl min-h-87.5 text-center text-slate-500">
               <div className="h-16 w-16 flex items-center justify-center rounded-2xl bg-slate-900 text-slate-600 border border-slate-800 mb-4 animate-pulse">
                 <MessageSquare className="h-8 w-8" />
               </div>

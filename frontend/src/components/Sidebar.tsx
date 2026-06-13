@@ -53,11 +53,11 @@ export default function Sidebar() {
       {/* Brand & Logo */}
       <div className="p-5 flex items-center justify-between border-b border-slate-800">
         <Link href="/" className="flex items-center gap-3 overflow-hidden select-none">
-          <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 shadow-lg shadow-indigo-500/30 flex-shrink-0 animate-pulse">
+          <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-linear-to-tr from-indigo-600 to-violet-500 shadow-lg shadow-indigo-500/30 shrink-0 animate-pulse">
             <Sparkles className="h-5 w-5 text-white" />
           </div>
           {!collapsed && (
-            <span className="font-bold text-lg bg-gradient-to-r from-white via-slate-100 to-indigo-300 bg-clip-text text-transparent tracking-tight whitespace-nowrap">
+            <span className="font-bold text-lg bg-linear-to-r from-white via-slate-100 to-indigo-300 bg-clip-text text-transparent tracking-tight whitespace-nowrap">
               SalesIQ Copilot
             </span>
           )}
@@ -76,11 +76,11 @@ export default function Sidebar() {
               href={item.href}
               className={`flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group relative ${
                 isActive 
-                  ? 'bg-gradient-to-r from-indigo-600/20 to-violet-600/10 text-indigo-400 border border-indigo-500/20 shadow-md shadow-indigo-950/20' 
+                  ? 'bg-linear-to-r from-indigo-600/20 to-violet-600/10 text-indigo-400 border border-indigo-500/20 shadow-md shadow-indigo-950/20' 
                   : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 border border-transparent'
               }`}
             >
-              <Icon className={`h-5 w-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110 ${
+              <Icon className={`h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110 ${
                 isActive ? 'text-indigo-400' : 'text-slate-400 group-hover:text-slate-200'
               }`} />
               

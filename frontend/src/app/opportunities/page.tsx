@@ -91,7 +91,7 @@ export default function OpportunitiesPage() {
           <button
             type="submit"
             disabled={isLoading || !query.trim()}
-            className="px-6 py-3.5 bg-gradient-to-r from-violet-600 to-indigo-500 hover:from-violet-500 hover:to-indigo-400 text-white font-semibold rounded-xl text-sm transition-all duration-200 shadow-lg shadow-violet-500/25 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="px-6 py-3.5 bg-linear-to-r from-violet-600 to-indigo-500 hover:from-violet-500 hover:to-indigo-400 text-white font-semibold rounded-xl text-sm transition-all duration-200 shadow-lg shadow-violet-500/25 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isLoading ? 'Analisando...' : 'Analisar'}
           </button>
@@ -114,7 +114,7 @@ export default function OpportunitiesPage() {
       {/* Error */}
       {error && (
         <div className="flex items-start gap-3 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-400 text-xs mb-8 max-w-2xl">
-          <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
           <div>
             <p className="font-bold">Falha na análise</p>
             <p className="mt-0.5">{error}</p>
@@ -124,7 +124,7 @@ export default function OpportunitiesPage() {
 
       {/* Loading */}
       {isLoading && (
-        <div className="flex flex-col items-center justify-center p-12 border border-slate-800/40 border-dashed rounded-3xl min-h-[400px] text-center">
+        <div className="flex flex-col items-center justify-center p-12 border border-slate-800/40 border-dashed rounded-3xl min-h-100 text-center">
           <div className="relative h-16 w-16 mb-4">
             <div className="absolute inset-0 rounded-full border-4 border-violet-500/10 border-t-violet-500 animate-spin" />
             <div className="absolute inset-2 rounded-full border-4 border-indigo-500/10 border-b-indigo-500 animate-spin" />
@@ -205,7 +205,7 @@ export default function OpportunitiesPage() {
               <div className="space-y-2">
                 {(result.metrics.related_categories ?? []).map((cat) => (
                   <div key={cat.id} className="flex items-center gap-2 text-sm text-slate-300">
-                    <span className="h-1.5 w-1.5 rounded-full bg-violet-400 flex-shrink-0" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-violet-400 shrink-0" />
                     {cat.name}
                     <span className="text-[10px] text-slate-500 ml-auto">{cat.id}</span>
                   </div>
@@ -216,7 +216,7 @@ export default function OpportunitiesPage() {
           </div>
 
           {/* AI Report */}
-          <div className="bg-gradient-to-br from-violet-950/10 via-slate-900/40 to-slate-900/40 border border-slate-800/80 rounded-3xl p-8 backdrop-blur-sm">
+          <div className="bg-linear-to-br from-violet-950/10 via-slate-900/40 to-slate-900/40 border border-slate-800/80 rounded-3xl p-8 backdrop-blur-sm">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800/80 mb-6">
               <div>
                 <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
@@ -259,7 +259,7 @@ export default function OpportunitiesPage() {
                   <ul className="space-y-2.5">
                     {result.analysis.opportunities.map((opp, idx) => (
                       <li key={idx} className="flex items-start gap-2.5 text-slate-300 text-xs leading-relaxed">
-                        <span className="h-2 w-2 rounded-full bg-violet-400 mt-1.5 flex-shrink-0" />
+                        <span className="h-2 w-2 rounded-full bg-violet-400 mt-1.5 shrink-0" />
                         {opp}
                       </li>
                     ))}
@@ -278,7 +278,7 @@ export default function OpportunitiesPage() {
 
       {/* Empty State */}
       {!result && !isLoading && !error && (
-        <div className="flex flex-col items-center justify-center p-12 border border-slate-800/40 border-dashed rounded-3xl min-h-[350px] text-center">
+        <div className="flex flex-col items-center justify-center p-12 border border-slate-800/40 border-dashed rounded-3xl min-h-87.5 text-center">
           <div className="h-16 w-16 flex items-center justify-center rounded-2xl bg-slate-900 text-slate-600 border border-slate-800 mb-4">
             <TrendingUp className="h-8 w-8" />
           </div>

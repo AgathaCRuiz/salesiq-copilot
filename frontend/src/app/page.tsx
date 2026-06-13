@@ -20,7 +20,7 @@ export default function Home() {
             <Sparkles className="h-3.5 w-3.5" /> Dashboard Inicial
           </div>
           <h1 className="text-4xl font-extrabold text-white tracking-tight sm:text-5xl">
-            Boas-vindas ao <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-300 bg-clip-text text-transparent">SalesIQ Copilot</span>
+            Boas-vindas ao <span className="bg-linear-to-r from-indigo-400 via-violet-400 to-indigo-300 bg-clip-text text-transparent">SalesIQ Copilot</span>
           </h1>
           <p className="mt-3 text-slate-400 text-lg max-w-2xl">
             Otimize seu atendimento, supere objeções de clientes e descubra oportunidades lucrativas no Mercado Livre com o poder da Inteligência Artificial.
