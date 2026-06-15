@@ -3,15 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  LayoutDashboard, 
-  MessageSquare, 
-  TrendingUp, 
-  Sparkles, 
-  Bot,          // ✅ adiciona
-  ChevronLeft, 
-  ChevronRight 
-} from 'lucide-react';
+import { LayoutDashboard, Bot, MessageSquare, TrendingUp, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -24,6 +16,12 @@ export default function Sidebar() {
       icon: LayoutDashboard,
       description: 'Visão geral do sistema'
     },
+    {
+    name: 'Overview',
+    href: '/dashboard',
+    icon: LayoutDashboard,
+    description: 'Dashboard de nichos'
+  },
     {
     name: 'Copiloto',  
     href: '/copilot',
