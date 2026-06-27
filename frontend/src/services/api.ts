@@ -15,6 +15,7 @@ export interface ProductContext {
   total_items_in_market: number;
   top_brands: string[];
   key_attributes: KeyAttributeCopilot[];
+  total_attributes: number;  // ✅ adiciona essa linha
 }
 
 export interface InitResponse {

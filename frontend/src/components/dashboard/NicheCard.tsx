@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { RefreshCw, X, Layers, Loader2, AlertCircle } from 'lucide-react';
-import { NicheData } from '../../hooks/useNicheData';
+import { NicheData, getScoreLabel } from '../../hooks/useNicheData';
 
 interface NicheCardProps {
   niche: NicheData;
@@ -11,6 +11,8 @@ interface NicheCardProps {
 }
 
 export default function NicheCard({ niche, onRefresh, onRemove }: NicheCardProps) {
+  const scoreInfo = niche.score !== null ? getScoreLabel(niche.score) : null;
+
   return (
     <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 backdrop-blur-sm relative overflow-hidden">
       <div className="absolute top-0 left-0 h-1 w-full rounded-t-2xl" style={{ backgroundColor: niche.color }} />
@@ -45,6 +47,7 @@ export default function NicheCard({ niche, onRefresh, onRemove }: NicheCardProps
             <p className="text-[10px] text-slate-500 uppercase tracking-wider">Categoria</p>
             <p className="text-xs text-slate-300 font-medium mt-0.5">{niche.data.context.category_name}</p>
           </div>
+
           <div className="flex items-center gap-2">
             <Layers className="h-4 w-4 flex-shrink-0" style={{ color: niche.color }} />
             <div>
@@ -54,6 +57,25 @@ export default function NicheCard({ niche, onRefresh, onRemove }: NicheCardProps
               </p>
             </div>
           </div>
+
+          {/* Score */}
+          {niche.score !== null && scoreInfo && (
+            <div className="pt-2 border-t border-slate-800/60">
+              <div className="flex items-center justify-between mb-1.5">
+                <p className="text-[10px] text-slate-500 uppercase tracking-wider">Score de Oportunidade</p>
+                <span className={`text-xs font-bold ${scoreInfo.color}`}>{niche.score}/100</span>
+              </div>
+              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-700 ${scoreInfo.bg}`}
+                  style={{ width: `${niche.score}%` }}
+                />
+              </div>
+              <p className={`text-[10px] mt-1.5 font-semibold ${scoreInfo.color}`}>
+                {scoreInfo.label}
+              </p>
+            </div>
+          )}
           <div>
             <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1.5">Top marcas</p>
             <div className="flex flex-wrap gap-1">

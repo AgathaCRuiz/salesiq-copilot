@@ -13,6 +13,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { api, MarketAnalysisResponse } from '../../services/api';
+import ExportPDFButton from '../../components/ExportPDFButton';
 
 const RECOMMENDED_SEARCHES = ['Smartwatch', 'Fone Bluetooth', 'Teclado Mecânico', 'Ring Light'];
 
@@ -229,6 +230,7 @@ export default function OpportunitiesPage() {
                 <span className={`px-4 py-1.5 rounded-full text-xs font-bold border ${getCompetitionBadgeColor(result.analysis.competition_level)}`}>
                   {result.analysis.competition_level}
                 </span>
+                <ExportPDFButton result={result} query={query} /> 
               </div>
             </div>
 
